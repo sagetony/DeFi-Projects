@@ -56,9 +56,25 @@ contract FlashLoan {
         address initiator,
         bytes memory params
     ) public returns (bool) {
-        if (msg.sender != address(this)) revert FlashLoan_OnlyContract();
+        if (msg.sender != address(pool)) revert FlashLoan_OnlyContract();
         if (initiator != address(this)) revert FlashLoan_OnlyContract();
 
-        IERC20 token;
+        IERC20 asset;
+
+        for (uint i = 1; i <= 1; i++) {
+            asset = IERC20(assets[i]);
+            uint256 amount = amounts[i];
+            uint256 premium = premiums[i];
+            console.log(
+                "contract's token balance during the flash loan: %s",
+                asset.balanceOf(address(this))
+            );
+
+            uint amountToPay = amount + premium;
+
+            asset.approve(address(pool), amountToPay);
+        }
+
+        return true;
     }
 }
