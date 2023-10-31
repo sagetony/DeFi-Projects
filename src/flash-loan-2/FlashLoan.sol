@@ -1,54 +1,46 @@
 // SCH Course Copyright Policy (C): DO-NOT-SHARE-WITH-ANYONE
 // https://smartcontractshacking.com/#copyright-policy
-pragma solidity 0.8.20;
+pragma solidity ^0.8.13;
 
 import "../interfaces/ILendingPool.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {console} from "forge-std/Test.sol";
+import "forge-std/console.sol";
 
 /**
  * @title FlashLoan
  * @author JohnnyTime (https://smartcontractshacking.com)
  */
 contract FlashLoan {
-    ILendingPool immutable pool;
-
-    error FlashLoan_InvalidAsset();
-    error FlashLoan_AmountIsZero();
-    error FlashLoan_OnlyContract();
+    ILendingPool pool;
 
     constructor(address _pool) {
         pool = ILendingPool(_pool);
     }
 
-    // TODO: Implement this function
     function getFlashLoan(address token, uint amount) external {
-        if (token == address(0)) revert FlashLoan_InvalidAsset();
-        if (amount == 0) revert FlashLoan_AmountIsZero();
-        console.log(IERC20(token).balanceOf(address(this)));
+        console.log(
+            "Balance before flash loan: %s",
+            IERC20(token).balanceOf(address(this))
+        );
 
-        address[] memory assets = new address[](1);
-        assets[0] = token;
-
+        address[] memory tokens = new address[](1);
+        tokens[0] = token;
         uint256[] memory amounts = new uint256[](1);
         amounts[0] = amount;
-
         uint256[] memory modes = new uint256[](1);
         modes[0] = 0;
 
         pool.flashLoan(
             address(this),
-            assets,
+            tokens,
             amounts,
             modes,
             address(this),
             "0x",
             0
         );
-        console.log(IERC20(token).balanceOf(address(this)));
     }
 
-    // TODO: Implement this function
     function executeOperation(
         address[] memory assets,
         uint256[] memory amounts,
@@ -56,23 +48,29 @@ contract FlashLoan {
         address initiator,
         bytes memory params
     ) public returns (bool) {
-        if (msg.sender != address(pool)) revert FlashLoan_OnlyContract();
-        if (initiator != address(this)) revert FlashLoan_OnlyContract();
+        require(msg.sender == address(pool), "not pool");
+        require(
+            initiator == address(this),
+            "I didn't initiate this flash loan"
+        );
 
-        IERC20 asset;
+        IERC20 token;
 
-        for (uint i = 1; i <= 1; i++) {
-            asset = IERC20(assets[i]);
-            uint256 amount = amounts[i];
-            uint256 premium = premiums[i];
+        for (uint256 i = 0; i <= assets.length; i++) {
+            token = IERC20(assets[i]);
+
             console.log(
                 "contract's token balance during the flash loan: %s",
-                asset.balanceOf(address(this))
+                token.balanceOf(address(this))
             );
 
-            uint amountToPay = amount + premium;
+            // ~~ Flash Loan Assets ~~ ///
+            // ~~ We can do whatever we wanted with the borrowed assets ~~ //
+            console.log("Flash loan fee: %s", premiums[i]);
+            console.log("Flash loan amount: %s", amounts[i]);
 
-            asset.approve(address(pool), amountToPay);
+            uint256 owed = amounts[i] + premiums[i];
+            token.approve(address(pool), owed);
         }
 
         return true;

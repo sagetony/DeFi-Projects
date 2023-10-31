@@ -3,6 +3,7 @@
 pragma solidity 0.8.20;
 
 import "@openzeppelin/contracts/utils/Address.sol";
+import {console, Test} from "forge-std/Test.sol";
 
 /**
  * @title MultiSignatureWallet
@@ -54,5 +55,7 @@ contract MultiSignatureWallet {
         return ecrecover(messageHash, signature.v, signature.r, signature.s);
     }
 
-    receive() external payable {}
+    receive() external payable {
+        console.log("sdsd");
+    }
 }

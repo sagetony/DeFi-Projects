@@ -1,11 +1,17 @@
-// SPDX-License-Identifier: SEE LICENSE IN LICENSE
-pragma solidity 0.8.20;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.13;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {console, Test} from "forge-std/Test.sol";
-import {FlashLoan} from "../src/flash-loan-2/FlashLoan.sol";
+import "forge-std/Test.sol";
+import "forge-std/console.sol";
 
+import "../src/flash-loan-2/FlashLoan.sol";
+
+/**
+@dev run "forge test --fork-url $ETH_RPC_URL --fork-block-number 15969633 --match-test test_Attack -vvvvv" 
+*/
 contract TestFL2 is Test {
+    // Should have $4.745M USDC on mainnet block 15969633
+    // https://etherscan.io/address/0x8e5dedeaeb2ec54d0508973a0fccd1754586974a
     address constant IMPERSONATED_ACCOUNT_ADDRESS =
         address(0x8e5dEdeAEb2EC54d0508973a0Fccd1754586974A);
     address constant USDC_ADDRESS =
@@ -20,21 +26,24 @@ contract TestFL2 is Test {
     FlashLoan flashLoan;
     IERC20 usdc;
 
-    function setUp() external {
+    function setUp() public {
         vm.label(USDC_ADDRESS, "USDC");
         vm.label(AAVE_LENDING_POOL_ADDRESS, "AaveLendingPool");
 
-        vm.startPrank(IMPERSONATED_ACCOUNT_ADDRESS);
-        flashLoan = new FlashLoan(AAVE_LENDING_POOL_ADDRESS);
+        // TODO: Get contract objects for relevant On-Chain contracts
         usdc = IERC20(USDC_ADDRESS);
-        usdc.transfer(address(flashLoan), FEE_AMOUNT);
-        console.log(usdc.balanceOf(address(flashLoan)));
-        vm.stopPrank();
+
+        // TODO: Deploy Flash Loan contract
+        vm.prank(IMPERSONATED_ACCOUNT_ADDRESS);
+        flashLoan = new FlashLoan(AAVE_LENDING_POOL_ADDRESS);
     }
 
-    function test_Loan() external {
+    function test_Loan() public {
+        // TODO: Send USDC to contract for fees
         vm.prank(IMPERSONATED_ACCOUNT_ADDRESS);
+        usdc.transfer(address(flashLoan), FEE_AMOUNT);
+
+        // TODO: Execute successfully a Flash Loan of $100,000,000 (USDC)
         flashLoan.getFlashLoan(address(usdc), BORROW_AMOUNT);
-        vm.stopPrank();
     }
 }
