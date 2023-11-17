@@ -3,7 +3,8 @@
 pragma solidity 0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+// import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 interface IReceiver {
     function getTokens(address tokenAddress, uint256 amount) external;
@@ -13,7 +14,8 @@ interface IReceiver {
  * @title ShibaPool
  * @author JohnnyTime (https://smartcontractshacking.com)
  */
-contract ShibaPool is ReentrancyGuard {
+// contract ShibaPool is ReentrancyGuard {
+contract ShibaPool {
     IERC20 public immutable shibaToken;
     uint256 public poolBalance;
 
@@ -21,14 +23,14 @@ contract ShibaPool is ReentrancyGuard {
         shibaToken = IERC20(tokenAddress);
     }
 
-    function depositTokens(uint256 amount) external nonReentrant {
+    function depositTokens(uint256 amount) external {
         // Deposit tokens to pool
         require(amount > 0, "amount should be greater than 0");
         shibaToken.transferFrom(msg.sender, address(this), amount);
         poolBalance = poolBalance + amount;
     }
 
-    function flashLoan(uint256 borrowAmount) external nonReentrant {
+    function flashLoan(uint256 borrowAmount) external {
         // Checks
         require(borrowAmount > 0, "amount should be greater than 0");
         uint256 balanceBefore = shibaToken.balanceOf(address(this));
