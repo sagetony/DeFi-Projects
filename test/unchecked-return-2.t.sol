@@ -5,12 +5,10 @@ import {console, Test} from "forge-std/Test.sol";
 
 import {Escrow} from "../src/unchecked-return-2/Escrow.sol";
 import {EscrowNFT} from "../src/unchecked-return-2/EscrowNFT.sol";
-import {AttackEscrow} from "../src/unchecked-return-2/AttackEscrow.sol";
 
 contract TestEscrow is Test {
     Escrow escrow;
     EscrowNFT escrownft;
-    AttackEscrow attackescrow;
 
     address deployer = makeAddr("deployer");
     address user1 = makeAddr("user1");
